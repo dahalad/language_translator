@@ -1,3 +1,4 @@
+import html.parser
 import re
 import urllib.request
 
@@ -18,15 +19,15 @@ def clean_text(text):
     if text == '':
         return ''
 
-    return text.replace(' ', '%20')
+    return urllib.parse.quote(text)
 
 
 def make_get_request(tl='auto', sl='auto', text=''):
     _request = """http://translate.google.com/m?hl={target_lang}&sl={source_lang}&q={text}"""
 
-    cleaned_text = clean_text(text)
+    _cleaned_text = clean_text(text)
 
-    _built_request = _request.format(source_lang=sl, target_lang=tl, text=cleaned_text)
+    _built_request = _request.format(source_lang=sl, target_lang=tl, text=_cleaned_text)
 
     _urllib_request = urllib.request.Request(_built_request, headers=headers)
 
@@ -37,6 +38,7 @@ def make_get_request(tl='auto', sl='auto', text=''):
 
 def parse_response(response):
     _raw_response = response.decode('utf-8')
+    _raw_response = html.parser.unescape(_raw_response)
     _matches = re.findall(r'class="t0">(.*?)<', _raw_response)
 
     if _matches is None or len(_matches) == 0:
@@ -46,16 +48,22 @@ def parse_response(response):
 
 
 if __name__ == "__main__":
-    supported_langs = ['es', 'en', 'de']
-    print("""es->Spanish, en->English, de->German""")
-    src_l = input("Specify source language: ")
+    supported_langs = ['es', 'en', 'de', 'ru', 'fr', 'ne', 'auto']
+    print("""es->Spanish, en->English, de->German, ru->Russian, fr->French, ne->Nepali""")
+    src_l = input("Specify source language (Empty for auto detect): ")
     while src_l not in supported_langs:
+        if src_l == '':
+            src_l = 'auto'
+            break
         print("Invalid entry..")
-        src_l = input("Specify source language: ")
-    dst_l = input("Specify target language: ")
+        src_l = input("Specify source language (Empty for auto detect): ")
+    dst_l = input("Specify target language (Empty for auto detect): ")
     while dst_l not in supported_langs:
+        if dst_l == '':
+            dst_l = 'auto'
+            break
         print("Invalid entry:")
-        dst_l = input("Specify target language: ")
+        dst_l = input("Specify target language (Empty for auto detect): ")
 
     corpora = input("Enter text to translate: ")
 
