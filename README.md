@@ -5,7 +5,7 @@ Translates text from one language to another using Google Translate.
 * Python3
 
 ## How to use
-* Install the requirements: 
+* Install the requirements:  
 ```pip install -r requirements.txt```
 * Execute the script:  
 ```python translate.py```
